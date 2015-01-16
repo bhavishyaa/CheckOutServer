@@ -5,8 +5,8 @@
 
     //var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 	
-	mongoose.connect('mongodb://localhost/nkdb');
-    //mongoose.connect('mongodb://nk:nk@ds027761.mongolab.com:27761/checkout');
+	//mongoose.connect('mongodb://localhost/nkdb');
+    mongoose.connect('mongodb://nk:nk@ds027761.mongolab.com:27761/checkout');
 	
     //if (env === 'development') {
     //    mongoose.connect('mongodb://localhost/nkdb');
