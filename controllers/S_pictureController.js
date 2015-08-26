@@ -1,4 +1,4 @@
-﻿(function (S_pictureController) {
+(function (S_pictureController) {
 
     var services = require("../services");
     
