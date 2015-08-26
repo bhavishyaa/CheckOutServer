@@ -1,41 +1,163 @@
 ﻿(function (services) {
     
-    var seedData = require("./seedData");
     var database = require("../database/mongoose");
+    var q = require('q');
     
-    //Get Users
-    services.getUsers = function (callback) {
-        //callback(null, seedData.initialUsers);
-        database.getUsers(function (results) {
-            callback(results);
-        });
-    };
-    
-    //Get User
-    services.getUser = function (userId, callback) {
-        database.getUser(userId, function(results) {
-            callback(results);
-        });
-    };
-    
-    function getUserDetail(userId) {
-        var users = seedData.initialUsers;
+    //Get User based on username
+    services.isUsernameAlreadyInUse = function (username) {
         
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].id.toString() === userId) {
-                return users[i];
-            }
-            continue;
-        }
-        return null;
-    }    ;
+        var defer = q.defer();
+        var promise = database.isUsernameAlreadyInUse(username);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    //Register User
+    services.registerUser = function (user) {
+        
+        var defer = q.defer();
+        var promise = database.registerUser(user);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.resolve(error);
+        });
+        return defer.promise;
+
+    };
+    
+    //Get User based on username
+    services.getUserUsingUsername = function (username) {
+        
+        var defer = q.defer();
+        var promise = database.getUserUsingUsername(username);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    
+    services.getUserUsingUserId = function (userId) {
+        
+        var defer = q.defer();
+        var promise = database.getUserUsingUserId(userId);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    
+    
+    
+    //Get Users based on location
+    services.getUsers = function (location) {
+        
+        var defer = q.defer();
+        var promise = database.getUsers(location);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+        
+    };
+    
+    //Get User based on userId
+    services.getUser = function (userId) {
+        
+        var defer = q.defer();
+        var promise = database.getUser(userId);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+        
+    };
     
     //Post User
-    services.postUser = function (user, next) {
-        next(null, postUserToDb(user));
+    services.postUser = function (user) {
+        
+        var defer = q.defer();
+        var promise = database.saveUser(user);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+        
     };
-    function postUserToDb(user) {
-        database.saveUser(user);
-    }    ;
+    
+    
+    //Post User pic
+    services.postUserPic = function (userId, picture) {
+        
+        var defer = q.defer();
+        var promise = database.saveUserPic(userId, picture);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    
+    //Get user pic
+    services.getUserPic = function () {
+        
+        var defer = q.defer();
+        var promise = database.getUserPic();
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+        
+    };
+    
+    //Update user current location
+    services.updateUserLocation = function (userId, location) {
+        
+        var defer = q.defer();
+        var promise = database.updateUserLocation(userId, location);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+
+    
+    //Update user current Profile
+    services.updateUserProfile = function (userId, profile) {
+        
+        var defer = q.defer();
+        var promise = database.updateUserProfile(userId, profile);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    
 
 })(module.exports);
