@@ -1,13 +1,24 @@
 ﻿(function (database) {
-
+    
     var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
     var mongoose = require('mongoose');
-
+    
+    mongoose.connect('mongodb://localhost/nkdb');
+    var db = mongoose.connection;
+    
+    //var db = mongoose.createConnection('mongodb://localhost/nkdb');
+    var mongo = require('mongodb');
+    var grid = require('gridfs-stream');
+    //var gfs = Grid(db, mongo);
+    var formidable = require("formidable");
+    //var grid = require('gridfs');
+    var fs = require("fs");
+    var q = require('q');
+    
+    
     //var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-	
-	//mongoose.connect('mongodb://localhost/nkdb');
-    mongoose.connect('mongodb://nk:nk@ds027761.mongolab.com:27761/checkout');
-	
+    //mongoose.connect('mongodb://nk:nk@ds027761.mongolab.com:27761/checkout');
+    
     //if (env === 'development') {
     //    mongoose.connect('mongodb://localhost/nkdb');
     //}
@@ -15,9 +26,6 @@
     //    mongoose.connect('mongodb://nk:nk@ds027761.mongolab.com:27761/checkout');
     //}
     
-    var fs = require("fs");
-    
-    var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
     db.once('open', function (callback) {
         console.log("connected to DB");
@@ -28,44 +36,117 @@
     var userSchema = schema({
         userId: Number,
         name: String,
+        email: String,
+        username: String,
+        passwordHash: String,
+        salt: String,
         status: String,
-        //image: { data: Buffer, contentType: String },
         //location: {
         //    latitude: Number,
         //    longitude: Number
         //},
+        location: {
+            type: String,
+            coordinates:[Number,Number]
+        },
         profile: {
             basicInfo: {
                 gender: String,
                 dob: String,
                 currentCity: String,
-                languages: String
             },
-            education: String,
-            work: String,
-            relationship: String,
-            interests: String
+            education: {
+                school: String,
+                underGraduation: String,
+                graduation: String
+            },
+            work: {
+                previousEmployer: String,
+                currentEmployer: String
+            },
+            relationship: {
+                status: String
+            },
+            interests: {
+                interests: String
+            }
         }
     });
     var userModel = mongoose.model('UserModel', userSchema);
     
-    database.saveUser = function (user) {
+    
+    
+    //Register User
+    database.registerUser = function (user) {
         
-        //var imgPath = "./cordova.png";
-        //user.image = {};
-        //user.image.data = fs.readFileSync(imgPath);
-        //user.image.contentType = 'image/png';
-        //console.log(user);
+        var defer = q.defer();
+        var usertobeRegisterd = new userModel(user);
+        usertobeRegisterd.save(function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
+        });
+        return defer.promise;
+
+    };
+    
+    //Get User Using Username
+    database.getUserUsingUsername = function (username) {
+        
+        var defer = q.defer();
+        userModel.findOne({ email: username }, function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
+        });
+        return defer.promise;
+
+    };
+    
+    database.getUserUsingUserId = function (userId) {
+        
+        var defer = q.defer();
+        userModel.findOne({ _id: userId }, function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
+        });
+        return defer.promise;
+
+    };
+    
+    //Check For Username Already In Use
+    database.isUsernameAlreadyInUse = function (username) {
+        
+        var defer = q.defer();
+        userModel.findOne({ email: username }, function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                if (results === null) {
+                    defer.resolve(results);
+                } else {
+                    defer.reject();
+                }
+            }
+        });
+        return defer.promise;
+
+    };
+    
+    //Save User
+    database.saveUser = function (user) {
         
         var userDetail = new userModel({
             userId: user.userId,
             name: user.name,
             status: user.status,
-            //image: user.image,
-            //location: {
-            //    latitude: user.location.latitude,
-            //    longitude: user.location.longitude
-            //},
             profile: {
                 basicInfo: {
                     gender: user.basicInfo.gender,
@@ -79,111 +160,156 @@
                 interests: user.interests
             }
         });
-        userDetail.save(function (err, result) {
-            return result;
+        var defer = q.defer();
+        userDetail.save(function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
         });
+        return defer.promise;
     };
     
-    database.getUsers = function (callback) {
-        var query = userModel.find();
+    
+    //Get Users Based On Location
+    database.getUsers = function (location) {
+        var defer = q.defer();
+        console.log(location);
+        //var extremeleft = location.latitude - 0.1;
+        //var extremeright = location.latitude + 0.1;
+        //var extremetop = location.longitude + 0.1;
+        //var extremebottom = location.longitude - 0.1;
+        //var query = userModel.find(({ "location.longitude": { $gte: extremebottom, $lte: extremetop }, "location.latitude": { $gte: extremeleft, $lte: extremeright } }));
+        
+        var query = userModel.find({ location: { $near: [location.longitude, location.latitude], $maxDistance: 100} });
+
         query.exec(function (err, results) {
-            console.log(err);
-            callback(results);
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
         });
+        return defer.promise;
     };
     
-    database.getUser = function (userId, callback) {
+    
+    //Get Users Based On UserId
+    database.getUser = function (userId) {
+        
+        var defer = q.defer();
         var query = userModel.findById(userId);
         query.exec(function (err, results) {
-            console.log(err);
-            console.log(results);
-            callback(results);
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
         });
+        return defer.promise;
+
+    };
+    
+    
+    //Update User Location 
+    database.updateUserLocation = function (userId, location) {
+        console.log(location);
+        
+        var defer = q.defer();
+        var id = userId;
+        userModel.findByIdAndUpdate(
+            { _id: id },
+            { $set: { location: location } },
+            function (err, results) {
+                if (err) {
+                    defer.reject(err);
+                } else {
+                    defer.resolve(results);
+                }
+            });
+        return defer.promise;
+
+    };
+    
+    //Update User Profile
+    database.updateUserProfile = function (userId, profile) {
+        var defer = q.defer();
+        var id = userId;
+        userModel.findByIdAndUpdate(
+            { _id: id },
+            { $set: { profile: profile } },
+            function (err, results) {
+                if (err) {
+                    defer.reject(err);
+                } else {
+                    defer.resolve(results);
+                }
+            });
+        return defer.promise;
+    };
+    
+    //Save User picture
+    database.saveUserPic = function (userId, picture) {
+        var defer = q.defer();
+        var form = new formidable.IncomingForm();
+        //form.uploadDir = __dirname + "/data";
+        form.keepExtensions = true;
+        form.parse(picture, function (err, fields, files) {
+            
+            if (!err) {
+                grid.mongo = mongoose.mongo;
+                var conn = mongoose.createConnection('mongodb://localhost/nkdb');
+                conn.once('open', function (error, results) {
+                    if (error) {
+                        console.log(error);
+                        defer.reject(error);
+                    } else {
+                        var gfs = grid(conn.db, mongo);
+                        var writestream = gfs.createWriteStream({
+                            filename: files.file.name
+                        });
+                        var savedPicture = fs.createReadStream(files.file.path).pipe(writestream);
+                        defer.resolve(savedPicture);
+                    }
+                });
+                
+            }
+        });
+        return defer.promise;
+    };
+    
+    
+    //Get User picture
+    database.getUserPic = function () {
+        
+        var defer = q.defer();
+        var conn = mongoose.createConnection('mongodb://localhost/nkdb');
+        var buffer = null;
+        conn.once('open', function (response) {
+            var gfs = grid(conn.db, mongo);
+            
+            var readstream = gfs.createReadStream({
+                filename: '1.JPG'
+            });
+            readstream.on("error", function (error) {
+                defer.reject(error);
+            });
+            //fs_write_stream.on("end", function (chunk) {
+            //    // This just pipes the read stream to the response object (which goes to the client)
+            //    buffer += chunk;
+            //});
+            readstream.on("end", function (chunk) {
+                buffer += chunk;
+            });
+            //if (!buffer) {
+            //    defer.resolve(readstream.pipe(buffer));
+            //}
+            //defer.resolve(readstream.pipe(response));
+            
+        });
+        return defer.promise;
+
     };
 
 })(module.exports);
-//// Enum start
-
-//var Schema = mongoose.Schema;
-//var genderSchema = Schema({
-//    gender: {type:String, enum:['Female', 'Male', 'Others']}
-//});
-//var genderModel = mongoose.model('genderModel', genderSchema);
-//var myGender = new genderModel({
-//    gender:"x"
-//});
-//console.log(myGender);
-
-// ENum end
-
-
-//var locationSchema = {
-//    latitude: Number,
-//    longitude: Number
-//};
-
-//var basicInfoSchema = {
-//    firstname: String,
-//    lastname: String,
-//    gender: String,
-//    dob: { type: Date, default: Date.now },
-//    from: String,
-//    languages: [String]
-//};
-
-//var educationSchema = {
-//    highschool: {
-//        name: String,
-//        started: String,
-//        ended: String,
-//        major: String
-//    },
-//    underGraduation: {
-//        name: String,
-//        started: String,
-//        ended: String,
-//        major: String
-//    },
-//    graduation: {
-//        name: String,
-//        started: String,
-//        ended: String,
-//        major: String
-//    },
-//    postGraduation: {
-//        name: String,
-//        started: String,
-//        ended: String,
-//        major: String
-//    }
-//};
-
-//var workSchema = {
-//    work: [String]
-//};
-
-//var interestsSchema = {
-//    interests: [String]
-//};
-//var userSchema = require("../models/TempuserModel.js");
-
-//database.saveUser = function () {
-
-//    var UserModel = mongoose.model('UserModel', userSchema);
-
-//    var Nishanth = new UserModel({
-//        userId: 1,
-//        name: "Nishanth Kabra",
-//        status: "Sophomore here",
-//        location : 55,
-//        profile: {
-//            basicInfo: "basic info",
-//            education: "education info",
-//            work: "work info",
-//            relationship: "Complicated",
-//            interests:"" 
-//        }
-//    });
-//    Nishanth.save();
-//}
-

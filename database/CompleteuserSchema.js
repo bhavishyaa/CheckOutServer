@@ -49,7 +49,18 @@
             },
             work: [String],
             relationship: String,
-            interests: [String]
+            interests: [
+                {
+                    previous: String,
+                    fromDate: Date,
+                    ToDate: Date
+                },
+                {
+                    current: String, 
+                    fromDate: Date,
+                    ToDate: Date
+                }
+            ]
         }
     });
 })(module.exports);
