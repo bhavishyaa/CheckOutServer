@@ -37,7 +37,7 @@
                 result.user = req.user;
                 res.send(result);
             }, function (error) {
-                res.send("Not able to load users based on location" + error);
+                res.send("Not able to load users based on location " + error);
             });
 
         });

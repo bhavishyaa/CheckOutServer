@@ -77,7 +77,7 @@
     services.getUser = function (userId) {
         
         var defer = q.defer();
-        var promise = database.getUser(userId);
+		var promise = database.getUserUsingUserId(userId);
         promise.then(function (result) {
             defer.resolve(result);
         }, function (error) {

@@ -175,14 +175,13 @@
     //Get Users Based On Location
     database.getUsers = function (location) {
         var defer = q.defer();
-        console.log(location);
         //var extremeleft = location.latitude - 0.1;
         //var extremeright = location.latitude + 0.1;
         //var extremetop = location.longitude + 0.1;
         //var extremebottom = location.longitude - 0.1;
         //var query = userModel.find(({ "location.longitude": { $gte: extremebottom, $lte: extremetop }, "location.latitude": { $gte: extremeleft, $lte: extremeright } }));
         
-        var query = userModel.find({ location: { $near: [location.longitude, location.latitude], $maxDistance: 100} });
+        var query = userModel.find({ location: { geoNear: [location.longitude, location.latitude], maxDistance: 100} });
 
         query.exec(function (err, results) {
             if (err) {
@@ -192,23 +191,6 @@
             }
         });
         return defer.promise;
-    };
-    
-    
-    //Get Users Based On UserId
-    database.getUser = function (userId) {
-        
-        var defer = q.defer();
-        var query = userModel.findById(userId);
-        query.exec(function (err, results) {
-            if (err) {
-                defer.reject(err);
-            } else {
-                defer.resolve(results);
-            }
-        });
-        return defer.promise;
-
     };
     
     
