@@ -4,6 +4,8 @@
     var mongoose = require('mongoose');
     
     mongoose.connect('mongodb://localhost/nkdb');
+    //mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+
     var db = mongoose.connection;
     
     //var db = mongoose.createConnection('mongodb://localhost/nkdb');
@@ -41,13 +43,12 @@
         passwordHash: String,
         salt: String,
         status: String,
-        //location: {
-        //    latitude: Number,
-        //    longitude: Number
-        //},
         location: {
-            type: String,
-            coordinates:[Number,Number]
+            type: {
+                type: String,
+                default: "Point"
+            }, 
+            coordinates:[Number]
         },
         profile: {
             basicInfo: {
@@ -73,8 +74,6 @@
         }
     });
     var userModel = mongoose.model('UserModel', userSchema);
-    
-    
     
     //Register User
     database.registerUser = function (user) {
@@ -171,17 +170,10 @@
         return defer.promise;
     };
     
-    
     //Get Users Based On Location
     database.getUsers = function (location) {
         var defer = q.defer();
-        //var extremeleft = location.latitude - 0.1;
-        //var extremeright = location.latitude + 0.1;
-        //var extremetop = location.longitude + 0.1;
-        //var extremebottom = location.longitude - 0.1;
-        //var query = userModel.find(({ "location.longitude": { $gte: extremebottom, $lte: extremetop }, "location.latitude": { $gte: extremeleft, $lte: extremeright } }));
-        
-        var query = userModel.find({ location: { geoNear: [location.longitude, location.latitude], maxDistance: 100} });
+        var query = userModel.find({ location: { $geoNear: { $geometry: { type: "Point", coordinates: [location.longitude, location.latitude] }, $minDistance: 0, $maxDistance: 500 } } });
 
         query.exec(function (err, results) {
             if (err) {
@@ -193,16 +185,19 @@
         return defer.promise;
     };
     
-    
     //Update User Location 
     database.updateUserLocation = function (userId, location) {
-        console.log(location);
-        
+        var locationGeoJson = {
+            type: "",
+            coordinates:[]
+        };
+        locationGeoJson.type = "Point";
+        locationGeoJson.coordinates = [location.longitude, location.latitude];
         var defer = q.defer();
         var id = userId;
         userModel.findByIdAndUpdate(
             { _id: id },
-            { $set: { location: location } },
+            { $set: { location: locationGeoJson } },
             function (err, results) {
                 if (err) {
                     defer.reject(err);
