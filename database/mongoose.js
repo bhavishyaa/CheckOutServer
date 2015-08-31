@@ -3,8 +3,8 @@
     var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
     var mongoose = require('mongoose');
     
-    mongoose.connect('mongodb://localhost/nkdb');
-    //mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+    //mongoose.connect('mongodb://localhost/nkdb');
+    mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
 
     var db = mongoose.connection;
     
@@ -180,7 +180,7 @@
     //Get Users Based On Location
     database.getUsers = function (location) {
         var defer = q.defer();
-        var query = userModel.find({ location: { $geoNear: { $geometry: { type: "Point", coordinates: [location.longitude, location.latitude] }, $minDistance: 0, $maxDistance: 500 } } });
+        var query = userModel.find({ location: { $geoNear: { $geometry: { type: "Point", coordinates: [location.longitude, location.latitude] }, $minDistance: 0, $maxDistance: 5000 } } });
 
         query.exec(function (err, results) {
             if (err) {
