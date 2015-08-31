@@ -22,8 +22,8 @@ auth.init(app);
 var controllers = require("./controllers");
 controllers.init(app);
 
-//var port = process.env.PORT || 3030;
-var port = 1337;
+var port = process.env.PORT || 3030;
+//var port = 1337;
 var server = http.createServer(app);
 server.listen(port);
 console.log("Listening on port .." + port);
