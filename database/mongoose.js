@@ -48,7 +48,10 @@
                 type: String,
                 default: "Point"
             }, 
-            coordinates:[Number]
+            coordinates: {
+                type: [Number]
+            }
+
         },
         profile: {
             basicInfo: {
@@ -79,7 +82,11 @@
     database.registerUser = function (user) {
         
         var defer = q.defer();
+       
+
         var usertobeRegisterd = new userModel(user);
+        usertobeRegisterd.location.coordinates[0] = 90;
+        usertobeRegisterd.location.coordinates[1] = 90;
         usertobeRegisterd.save(function (err, results) {
             if (err) {
                 defer.reject(err);
