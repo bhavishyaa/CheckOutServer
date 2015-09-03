@@ -144,7 +144,20 @@
 
     };
 
-    
+    //Get user current Profile
+
+    services.getUserProfile = function (userId) {
+        
+        var defer = q.defer();
+        var promise = database.getUserProfile(userId);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
     //Update user current Profile
     services.updateUserProfile = function (userId, profile) {
         

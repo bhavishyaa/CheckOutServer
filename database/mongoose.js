@@ -5,7 +5,7 @@
     
     //mongoose.connect('mongodb://localhost/nkdb');
     mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
-
+    
     var db = mongoose.connection;
     
     //var db = mongoose.createConnection('mongodb://localhost/nkdb');
@@ -57,7 +57,7 @@
             basicInfo: {
                 gender: String,
                 dob: String,
-                currentCity: String,
+                city: String,
             },
             education: {
                 school: String,
@@ -82,8 +82,8 @@
     database.registerUser = function (user) {
         
         var defer = q.defer();
-       
-
+        
+        
         var usertobeRegisterd = new userModel(user);
         usertobeRegisterd.location.coordinates[0] = 90;
         usertobeRegisterd.location.coordinates[1] = 90;
@@ -181,7 +181,7 @@
     database.getUsers = function (location) {
         var defer = q.defer();
         var query = userModel.find({ location: { $geoNear: { $geometry: { type: "Point", coordinates: [location.longitude, location.latitude] }, $minDistance: 0, $maxDistance: 5000 } } });
-
+        
         query.exec(function (err, results) {
             if (err) {
                 defer.reject(err);
@@ -196,7 +196,7 @@
     database.updateUserLocation = function (userId, location) {
         var locationGeoJson = {
             type: "",
-            coordinates:[]
+            coordinates: []
         };
         locationGeoJson.type = "Point";
         locationGeoJson.coordinates = [location.longitude, location.latitude];
@@ -214,6 +214,22 @@
             });
         return defer.promise;
 
+    };
+    
+    //Get User Profile
+    database.getUserProfile = function (userId) {
+        var defer = q.defer();
+        var id = userId;
+        userModel.findById(
+            { _id: id },
+            function (err, results) {
+                if (err) {
+                    defer.reject(err);
+                } else {
+                    defer.resolve(results);
+                }
+            });
+        return defer.promise;
     };
     
     //Update User Profile

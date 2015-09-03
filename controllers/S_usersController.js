@@ -12,9 +12,6 @@
             res.send("This is app's basic route");
         });
         
-        
-        
-        
         app.post("/api/users/", function (req, res) {
             //if (!req.headers.authorization) {
             //    return res.status(401).send({ message : "You are not authorized" });
@@ -83,6 +80,21 @@
             });
             
         });
+        
+        app.get("/api/user/getProfile/", function (req, res) {
+            
+            var userId = req.headers.userid;
+            if (!userId) {
+                return res.status(401).send({ message : "UserId is not passed in headers" });
+            }
+            
+            var promise = services.getUserProfile(userId);
+            promise.then(function (result) {
+                res.send(result);
+            }, function (error) {
+                res.send("Not able to get user profile " + error);
+            });
+        });
 
         app.post("/api/user/updateProfile/", function (req, res) {
             
@@ -96,7 +108,7 @@
             promise.then(function (result) {
                 res.send(result);
             }, function (error) {
-                res.send("Not able to update user location" + location + "error: " + error);
+                res.send("Not able to update user profile - " + profile + "error " + error);
             });
         });
 
