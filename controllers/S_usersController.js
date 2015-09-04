@@ -41,7 +41,7 @@
         
         app.get("/api/user/", function (req, res) {
             
-            //var userId = req.headers.userid;
+            var userId = req.headers.userid;
             //if (!userId) {
             //    return res.status(401).send({ message : "UserId is not passed in headers" });
             //}
