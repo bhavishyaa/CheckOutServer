@@ -39,9 +39,14 @@
 
         });
         
-        app.get("/api/user/:id", function (req, res) {
+        app.get("/api/user/", function (req, res) {
             
-            var userId = req.params.id;
+            //var userId = req.headers.userid;
+            //if (!userId) {
+            //    return res.status(401).send({ message : "UserId is not passed in headers" });
+            //}
+
+            //var userId = req.params.id;
             var promise = services.getUser(userId);
             promise.then(function (result) {
                 res.send(result);
@@ -65,7 +70,7 @@
         
         
         app.post("/api/user/updateLocation/", function (req, res) {
-            
+
             var userId = req.headers.userid;
             if (!userId) {
                 return res.status(401).send({ message : "UserId is not passed in headers" });
@@ -81,20 +86,7 @@
             
         });
         
-        app.get("/api/user/getProfile/", function (req, res) {
-            
-            var userId = req.headers.userid;
-            if (!userId) {
-                return res.status(401).send({ message : "UserId is not passed in headers" });
-            }
-            
-            var promise = services.getUserProfile(userId);
-            promise.then(function (result) {
-                res.send(result);
-            }, function (error) {
-                res.send("Not able to get user profile " + error);
-            });
-        });
+        
 
         app.post("/api/user/updateProfile/", function (req, res) {
             

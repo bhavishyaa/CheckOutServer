@@ -34,7 +34,7 @@
     });
     
     //var userSchema = require("./userSchema.js");
-    var schema = mongoose.Schema;;
+    var schema = mongoose.Schema;
     var userSchema = schema({
         userId: Number,
         name: String,
@@ -55,24 +55,24 @@
         },
         profile: {
             basicInfo: {
-                gender: String,
-                dob: String,
-                city: String,
+                gender: { type: String, default: ""},
+                dob: { type: String, default: "" },
+                city: { type: String, default: ""}
             },
             education: {
-                school: String,
-                underGraduation: String,
-                graduation: String
+                school: { type: String, default: ""},
+                underGraduation: { type: String, default: ""},
+                graduation: { type: String, default: "" },
             },
             work: {
-                previousEmployer: String,
-                currentEmployer: String
+                previousEmployer: { type: String, default: "" },
+                currentEmployer: { type: String, default: "" }
             },
             relationship: {
-                status: String
+                status: { type: String, default: "" }
             },
             interests: {
-                interests: String
+                interests: { type: String, default: "" }
             }
         }
     });
@@ -82,8 +82,6 @@
     database.registerUser = function (user) {
         
         var defer = q.defer();
-        
-        
         var usertobeRegisterd = new userModel(user);
         usertobeRegisterd.location.coordinates[0] = 90;
         usertobeRegisterd.location.coordinates[1] = 90;
@@ -220,7 +218,7 @@
     database.getUserProfile = function (userId) {
         var defer = q.defer();
         var id = userId;
-        userModel.findById(
+        userModel.findOne(
             { _id: id },
             function (err, results) {
                 if (err) {
