@@ -3,8 +3,8 @@
     var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
     var mongoose = require('mongoose');
     
-    //mongoose.connect('mongodb://localhost/nkdb');
-    mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+    mongoose.connect('mongodb://localhost/nkdb');
+    //mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
     
     var db = mongoose.connection;
     
@@ -37,12 +37,12 @@
     var schema = mongoose.Schema;
     var userSchema = schema({
         userId: Number,
-        name: String,
         email: String,
         username: String,
         passwordHash: String,
         salt: String,
-        status: String,
+        name: String,
+        status: { type: String, default: "Hey there! Am checking out" },
         location: {
             type: {
                 type: String,
@@ -55,13 +55,14 @@
         },
         profile: {
             basicInfo: {
-                gender: { type: String, default: ""},
+                name: { type: String, default: "Noname User" },
+                gender: { type: String, default: "" },
                 dob: { type: String, default: "" },
-                city: { type: String, default: ""}
+                city: { type: String, default: "" }
             },
             education: {
-                school: { type: String, default: ""},
-                underGraduation: { type: String, default: ""},
+                school: { type: String, default: "" },
+                underGraduation: { type: String, default: "" },
                 graduation: { type: String, default: "" },
             },
             work: {
@@ -176,10 +177,21 @@
     };
     
     //Get Users Based On Location
-    database.getUsers = function (location) {
+    database.getUsers = function (location, userId) {
         var defer = q.defer();
-        var query = userModel.find({ location: { $geoNear: { $geometry: { type: "Point", coordinates: [location.longitude, location.latitude] }, $minDistance: 0, $maxDistance: 5000 } } });
-        
+        var query = userModel.find(
+            {
+                location: {
+                    $geoNear: {
+                        $geometry: {
+                            type: "Point", coordinates: [location.longitude, location.latitude]
+                        }, $minDistance: 0, $maxDistance: 1000
+                    }
+                },
+                _id: { $ne: userId }
+            }/*, {
+                userId: 1, profile: 1, status: 1, location: 1
+            }*/);
         query.exec(function (err, results) {
             if (err) {
                 defer.reject(err);

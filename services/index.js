@@ -60,10 +60,10 @@
     
     
     //Get Users based on location
-    services.getUsers = function (location) {
+    services.getUsers = function (location, userId) {
         
         var defer = q.defer();
-        var promise = database.getUsers(location);
+        var promise = database.getUsers(location, userId);
         promise.then(function (result) {
             defer.resolve(result);
         }, function (error) {

@@ -29,7 +29,7 @@
             }
 
             var location = req.body;
-            var promise = services.getUsers(location);
+            var promise = services.getUsers(location, userId);
             promise.then(function (result) {
                 result.user = req.user;
                 res.send(result);
