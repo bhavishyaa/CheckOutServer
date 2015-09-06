@@ -28,7 +28,7 @@
             //    res.status(401).send({ message : "You are not authorized" });
             
             var userId = req.headers.userid;
-            if (!userId) {
+            if (userId == null && !userId) {
                 return res.status(401).send({ message : "UserId is not passed in headers" });
             }
 
@@ -43,23 +43,40 @@
 
         });
         
-        app.get("/api/user/", function (req, res) {
+        app.get("/api/user/:id", function (req, res) {
             
             var userId = req.headers.userid;
             //if (!userId) {
             //    return res.status(401).send({ message : "UserId is not passed in headers" });
             //}
 
-            //var userId = req.params.id;
-            var promise = services.getUser(userId);
+            var id = req.params.id;
+            var promise = services.getUser(id);
             promise.then(function (result) {
                 res.send(result);
             }, function (error) {
-                res.send("Not able to load user with userid " + userId + "error: " + error);
+                res.send("Not able to get user info with id " + id + "error: " + error);
             });
 
         });
         
+        app.get("/api/user/myDetails/", function (req, res) {
+            
+            var userId = req.headers.userid;
+            //if (!userId) {
+            //    return res.status(401).send({ message : "UserId is not passed in headers" });
+            //}
+            
+            //var id = req.params.id;
+            var promise = services.getUser(userId);
+            promise.then(function (result) {
+                res.send(result);
+            }, function (error) {
+                res.send("Not able to load your details with your id " + userId + "error: " + error);
+            });
+
+        });
+
         app.post("/api/user/", function (req, res) {
             
             var userObj = req.body;
