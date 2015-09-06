@@ -3,8 +3,8 @@
     var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
     var mongoose = require('mongoose');
     
-    mongoose.connect('mongodb://localhost/nkdb');
-    //mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+    //mongoose.connect('mongodb://localhost/nkdb');
+    mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
     
     var db = mongoose.connection;
     
