@@ -41,8 +41,8 @@
         username: String,
         passwordHash: String,
         salt: String,
-        name: String,
-        status: { type: String, default: "Hey there! Am checking out" },
+        //name: String,
+        //status: { type: String, default: "Hey there! Am checking out" },
         location: {
             type: {
                 type: String,
@@ -55,7 +55,7 @@
         },
         profile: {
             basicInfo: {
-                name: { type: String, default: "Noname User" },
+                name: { type: String, default: "Test User" },
                 gender: { type: String, default: "" },
                 dob: { type: String, default: "" },
                 city: { type: String, default: "" }
@@ -74,6 +74,9 @@
             },
             interests: {
                 interests: { type: String, default: "" }
+            },
+            status: {
+                status: { type: String, default: "Hey there! Am checking out" },
             }
         }
     });

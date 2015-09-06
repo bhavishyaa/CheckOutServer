@@ -12,6 +12,10 @@
             res.send("This is app's basic route");
         });
         
+        app.get("/test", function (req, res) {
+            res.send("This is a test route for server");
+        });
+        
         app.post("/api/users/", function (req, res) {
             //if (!req.headers.authorization) {
             //    return res.status(401).send({ message : "You are not authorized" });
