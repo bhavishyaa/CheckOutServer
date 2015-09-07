@@ -78,7 +78,8 @@
             status: {
                 status: { type: String, default: "Hey there! Am checking out" },
             }
-        }
+        },
+        imageData: { type: String, default: "" }
     });
     var userModel = mongoose.model('UserModel', userSchema);
     
@@ -192,9 +193,9 @@
                     }
                 },
                 _id: { $ne: userId }
-            }/*, {
+            }, {
                 userId: 1, profile: 1, status: 1, location: 1
-            }*/);
+            });
         query.exec(function (err, results) {
             if (err) {
                 defer.reject(err);
@@ -262,7 +263,45 @@
         return defer.promise;
     };
     
+    //Get User picture
+    database.getDisplayPic = function (userId) {
+        var defer = q.defer();
+        var id = userId;
+        var query = userModel.findOne(
+            {
+               _id: userId
+            }, {
+                imageData: 1
+            });
+        query.exec(function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                defer.resolve(results);
+            }
+        });
+        return defer.promise;
+    }
+    
     //Save User picture
+    database.postDisplayPic = function (userId, picture) {
+        var defer = q.defer();
+        var id = userId;
+        userModel.findByIdAndUpdate(
+            { _id: id },
+            {
+                $set: { imageData: picture }
+            },
+            function (err, results) {
+                if (err) {
+                    defer.reject(err);
+                } else {
+                    defer.resolve(results);
+                }
+            });
+        return defer.promise;
+    }
+    
     database.saveUserPic = function (userId, picture) {
         var defer = q.defer();
         var form = new formidable.IncomingForm();

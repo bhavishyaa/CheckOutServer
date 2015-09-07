@@ -101,8 +101,33 @@
         
     };
     
-    
+    //Get Display pic
+    services.getDisplayPic = function (userId) {
+        
+        var defer = q.defer();
+        var promise = database.getDisplayPic(userId);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
     //Post User pic
+    services.postDisplayPic = function (userId, picture) {
+        
+        var defer = q.defer();
+        var promise = database.postDisplayPic(userId, picture);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+
     services.postUserPic = function (userId, picture) {
         
         var defer = q.defer();
