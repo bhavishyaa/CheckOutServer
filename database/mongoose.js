@@ -291,7 +291,7 @@
         userModel.findByIdAndUpdate(
             { _id: id },
             {
-                $set: { imageData: picture }
+                $set: { imageData: picture.data }
             },
             function (err, results) {
                 if (err) {
