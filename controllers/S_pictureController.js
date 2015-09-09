@@ -5,7 +5,7 @@
     S_pictureController.init = function (app) {
         
         app.get("/api/picture/getDisplayPic", function (req, res) {
-            //var userId = req.headers.userid;
+            var userId = req.headers.userid;
             //ToDo: check for null
             //if (!userId) {
                 //return res.status(401).send({ message : "UserId is not passed in headers" });
@@ -13,11 +13,11 @@
             //var picturereq = req;
             //res.headers = req.headers;
             
-            var promise = services.getDisplayPic("55ec4fcff541b9a00965ace4");
+            var promise = services.getDisplayPic(userId);
             promise.then(function (result) {
                 res.send(result);
             }, function (error) {
-                res.send("Not able to post user photo error: " + error);
+                res.send("Not able to get user display pic error: " + error);
             });
 
         });
@@ -30,8 +30,8 @@
             }
             //var picturereq = req;
             //res.headers = req.headers;
-            
-            var promise = services.postDisplayPic(userId, req.body);
+            var imagedata = req.body.data;
+            var promise = services.postDisplayPic(userId, imagedata);
             promise.then(function (result) {
                 res.send(result);
             }, function (error) {

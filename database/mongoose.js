@@ -269,10 +269,11 @@
         var id = userId;
         var query = userModel.findOne(
             {
-               _id: userId
-            }, {
-                imageData: 1
+                _id: userId
             });
+            //}, {
+            //    imageData: 1
+            //});
         query.exec(function (err, results) {
             if (err) {
                 defer.reject(err);
