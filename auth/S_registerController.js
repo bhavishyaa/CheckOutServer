@@ -12,7 +12,7 @@
     S_registersController.init = function (app) {
         
         function userVerify(username, password, next) {
-            var promise = services.getUserUsingUsername(username);
+            var promise = services.getUserUsingUsername(username.toLowerCase());
             promise.then(function (user) {
                 if (user) {
                     var testHash = hasher.computeHash(password, user.salt);
@@ -64,7 +64,7 @@
         });
         
         app.post("/api/register/checkForUsernameExistence", function (req, res) {
-            var username = req.body.email;
+            var username = req.body.email.toLowerCase();
             var promise = services.isUsernameAlreadyInUse(username);
             
             promise.then(function (result) {
@@ -83,7 +83,7 @@
             
             var salt = hasher.createSalt();
             var user = {
-                email: req.body.email,
+                email: req.body.email.toLowerCase(),
                 passwordHash: hasher.computeHash(req.body.password, salt),
                 salt: salt
             };
@@ -95,36 +95,5 @@
                 res.send("Registration failed" + error);
             });
         });
-        //app.post("/api/register/", function (req, res) {
-        
-        //    var user = req.body;
-        //    var newUser = {
-        //        email: user.email,
-        //        password: user.password
-        //    };
-        
-        //    var payload = {
-        //        iss: req.hostname,
-        //        sub: newUser.id
-        //    }
-        
-        //    var token = jwt.encode(payload, "shhh..");
-        
-        //    var promise = services.registerUser(newUser);
-        //    promise.then(function (result) {
-        //        res.send({
-        //            user: result.toJSON(),
-        //            token: token
-        //        });
-        //    }, function (error) {
-        //        res.send("Registration failed" + error);
-        //    });
-        //});
-        
-        
-        
-
-
-
     };
 })(module.exports);
