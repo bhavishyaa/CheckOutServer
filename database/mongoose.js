@@ -189,7 +189,7 @@
                     $geoNear: {
                         $geometry: {
                             type: "Point", coordinates: [location.longitude, location.latitude]
-                        }, $minDistance: 0, $maxDistance: 1000
+                        }, $minDistance: 0, $maxDistance: 500
                     }
                 },
                 _id: { $ne: userId }
