@@ -60,7 +60,7 @@
 
         });
         
-        app.get("/api/user/myDetails/", function (req, res) {
+        app.get("/api/myDetails/", function (req, res) {
             
             var userId = req.headers.userid;
             //if (!userId) {
