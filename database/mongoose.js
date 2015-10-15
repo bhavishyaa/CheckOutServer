@@ -2,18 +2,15 @@
     
     var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
     var mongoose = require('mongoose');
-    
     //mongoose.connect('mongodb://localhost/nkdb');
     mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
-    
     var db = mongoose.connection;
-    
-    //var db = mongoose.createConnection('mongodb://localhost/nkdb');
+
     var mongo = require('mongodb');
     var grid = require('gridfs-stream');
-    //var gfs = Grid(db, mongo);
+    //var gfs = grid(db, mongo);
     var formidable = require("formidable");
-    //var grid = require('gridfs');
+    
     var fs = require("fs");
     var q = require('q');
     
@@ -264,55 +261,44 @@
     };
     
     //Get User picture
-    database.getDisplayPic = function (userId) {
+    database.getUserPic = function (config) {
+        
         var defer = q.defer();
-        var id = userId;
-        var query = userModel.findOne(
-            {
-                _id: userId
+
+        var conn = mongoose.createConnection('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+        var output = null;
+        conn.once('open', function (response) {
+            var gfs = grid(conn.db, mongo);
+            var readstream = gfs.createReadStream({
+                _id: config.id
             });
-            //}, {
-            //    imageData: 1
-            //});
-        query.exec(function (err, results) {
-            if (err) {
-                defer.reject(err);
-            } else {
-                defer.resolve(results);
-            }
+            var writeStream = config.writeStream;
+            readstream.pipe(writeStream);
+            writeStream.on('close', function () {
+                defer.resolve();
+            });
+            writeStream.on('error', function (error) {
+                defer.reject(error);
+            });
+            readstream.on('error', function (error) {
+                defer.reject(error);
+            });
         });
         return defer.promise;
-    }
-    
+
+    };
+
     //Save User picture
-    database.postDisplayPic = function (userId, picture) {
-        var defer = q.defer();
-        var id = userId;
-        userModel.findByIdAndUpdate(
-            { _id: id },
-            {
-                $set: { imageData: picture.data }
-            },
-            function (err, results) {
-                if (err) {
-                    defer.reject(err);
-                } else {
-                    defer.resolve(results);
-                }
-            });
-        return defer.promise;
-    }
-    
-    database.saveUserPic = function (userId, picture) {
+    database.postUserPic = function (userId, req) {
         var defer = q.defer();
         var form = new formidable.IncomingForm();
         //form.uploadDir = __dirname + "/data";
         form.keepExtensions = true;
-        form.parse(picture, function (err, fields, files) {
+        form.parse(req, function (err, fields, files) {
             
             if (!err) {
                 grid.mongo = mongoose.mongo;
-                var conn = mongoose.createConnection('mongodb://localhost/nkdb');
+                var conn = mongoose.createConnection('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
                 conn.once('open', function (error, results) {
                     if (error) {
                         console.log(error);
@@ -320,7 +306,8 @@
                     } else {
                         var gfs = grid(conn.db, mongo);
                         var writestream = gfs.createWriteStream({
-                            filename: files.file.name
+                            safe: true,
+                            _id: userId
                         });
                         var savedPicture = fs.createReadStream(files.file.path).pipe(writestream);
                         defer.resolve(savedPicture);
@@ -332,37 +319,5 @@
         return defer.promise;
     };
     
-    
-    //Get User picture
-    database.getUserPic = function () {
-        
-        var defer = q.defer();
-        var conn = mongoose.createConnection('mongodb://localhost/nkdb');
-        var buffer = null;
-        conn.once('open', function (response) {
-            var gfs = grid(conn.db, mongo);
-            
-            var readstream = gfs.createReadStream({
-                filename: '1.JPG'
-            });
-            readstream.on("error", function (error) {
-                defer.reject(error);
-            });
-            //fs_write_stream.on("end", function (chunk) {
-            //    // This just pipes the read stream to the response object (which goes to the client)
-            //    buffer += chunk;
-            //});
-            readstream.on("end", function (chunk) {
-                buffer += chunk;
-            });
-            //if (!buffer) {
-            //    defer.resolve(readstream.pipe(buffer));
-            //}
-            //defer.resolve(readstream.pipe(response));
-            
-        });
-        return defer.promise;
-
-    };
 
 })(module.exports);

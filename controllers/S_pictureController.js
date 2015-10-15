@@ -1,73 +1,44 @@
 (function (S_pictureController) {
-
+    
     var services = require("../services");
     
     S_pictureController.init = function (app) {
         
-        app.get("/api/picture/getDisplayPic", function (req, res) {
+        app.get("/api/getUserPic", function (req, res) {
             var userId = req.headers.userid;
             //ToDo: check for null
             //if (!userId) {
-                //return res.status(401).send({ message : "UserId is not passed in headers" });
+            //return res.status(401).send({ message : "UserId is not passed in headers" });
             //}
-            //var picturereq = req;
-            //res.headers = req.headers;
-            
-            var promise = services.getDisplayPic(userId);
+            var config = {
+                id: userId,
+                writeStream: res
+            };
+            res.writeHead(200, { 'Content-Type': 'image/jpg' });
+            var promise = services.getUserPic(config);
             promise.then(function (result) {
-                res.send(result);
+                res.end();
             }, function (error) {
-                res.send("Not able to get user display pic error: " + error);
-            });
-
-        });
-
-        app.post("/api/picture/postisplayPic", function (req, res) {
-            var userId = req.headers.userid;
-            //ToDo: check for null
-            if (!userId) {
-                return res.status(401).send({ message : "UserId is not passed in headers" });
-            }
-            //var picturereq = req;
-            //res.headers = req.headers;
-            var imagedata = req.body.data;
-            var promise = services.postDisplayPic(userId, imagedata);
-            promise.then(function (result) {
-                res.send(result);
-            }, function (error) {
-                res.send("Not able to post user photo" + picturereq + "error: " + error);
-            });
-
-        });
-
-        app.post("/api/user/userId/imagenew", function (req, res) {
-            var userId = req.headers.userid;
-            //ToDo: check for null
-            if (!userId) {
-                return res.status(401).send({ message : "UserId is not passed in headers" });
-            }
-            var picturereq = req;
-            res.headers = req.headers;
-
-            var promise = services.postUserPic(userId, picturereq);
-            promise.then(function (result) {
-                res.headers = { 'Content-Type': undefined };
-                res.send(result);
-            }, function (error) {
-                res.send("Not able to post user photo" + picturereq + "error: " + error);
+                res.status(500).send("Not able to get user display pic error: " + error);
             });
 
         });
         
-        app.get("/api/user/userId/getimage", function (req, res) {
-
-            var promise = services.getUserPic();
+        app.post("/api/postUserPic", function (req, res) {
+            var userId = req.headers.userid;
+            if (!userId) {
+                return res.status(401).send({ message : "UserId is not passed in headers" });
+            }
+            res.headers = req.headers;
+            
+            var promise = services.postUserPic(userId, req);
             promise.then(function (result) {
                 res.headers = { 'Content-Type': undefined };
-                res.send(result);
+                res.send(200);
             }, function (error) {
-                res.send("Not able to get user photo" + "error: " + error);
+                res.send("Not able to post user photo" + picturereq + "error: " + error);
             });
+
         });
 
     };

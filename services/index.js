@@ -101,60 +101,6 @@
         
     };
     
-    //Get Display pic
-    services.getDisplayPic = function (userId) {
-        
-        var defer = q.defer();
-        var promise = database.getDisplayPic(userId);
-        promise.then(function (result) {
-            defer.resolve(result);
-        }, function (error) {
-            defer.reject(error);
-        });
-        return defer.promise;
-
-    };
-    //Post User pic
-    services.postDisplayPic = function (userId, picture) {
-        
-        var defer = q.defer();
-        var promise = database.postDisplayPic(userId, picture);
-        promise.then(function (result) {
-            defer.resolve(result);
-        }, function (error) {
-            defer.reject(error);
-        });
-        return defer.promise;
-
-    };
-
-    services.postUserPic = function (userId, picture) {
-        
-        var defer = q.defer();
-        var promise = database.saveUserPic(userId, picture);
-        promise.then(function (result) {
-            defer.resolve(result);
-        }, function (error) {
-            defer.reject(error);
-        });
-        return defer.promise;
-
-    };
-    
-    //Get user pic
-    services.getUserPic = function () {
-        
-        var defer = q.defer();
-        var promise = database.getUserPic();
-        promise.then(function (result) {
-            defer.resolve(result);
-        }, function (error) {
-            defer.reject(error);
-        });
-        return defer.promise;
-        
-    };
-    
     //Update user current location
     services.updateUserLocation = function (userId, location) {
         
@@ -188,6 +134,34 @@
         
         var defer = q.defer();
         var promise = database.updateUserProfile(userId, profile);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    
+    //Get user pic
+    services.getUserPic = function (config) {
+        
+        var defer = q.defer();
+        var promise = database.getUserPic(config);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+        
+    };
+
+    //Post User pic
+    services.postUserPic = function (userId, req) {
+    
+        var defer = q.defer();
+        var promise = database.postUserPic(userId, req);
         promise.then(function (result) {
             defer.resolve(result);
         }, function (error) {
