@@ -30,9 +30,9 @@
             var userId = "55ec4819411b7c0300034ddb";
             //var userId = req.headers.userid;
 
-            if (!userId) {
-                return res.status(401).send({ message : "UserId is not passed in headers" });
-            }
+            //if (!userId) {
+            //    return res.status(401).send({ message : "UserId is not passed in headers" });
+            //}
             res.headers = req.headers;
             
             var promise = services.postUserPic(userId, req);
