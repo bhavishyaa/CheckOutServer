@@ -2,8 +2,12 @@
     
     var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
     var mongoose = require('mongoose');
+    //var dbConnectionString = 'mongodb://localhost/nkdb';
+    var dbConnectionString = 'mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout';
+    
+    mongoose.connect(dbConnectionString);
     //mongoose.connect('mongodb://localhost/nkdb');
-    mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+    //mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
     var db = mongoose.connection;
 
     var mongo = require('mongodb');
@@ -265,7 +269,7 @@
         
         var defer = q.defer();
 
-        var conn = mongoose.createConnection('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+        var conn = mongoose.createConnection(dbConnectionString);
         var output = null;
         conn.once('open', function (response) {
             var gfs = grid(conn.db, mongo);
@@ -298,7 +302,7 @@
             
             if (!err) {
                 grid.mongo = mongoose.mongo;
-                var conn = mongoose.createConnection('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
+                var conn = mongoose.createConnection(dbConnectionString);
                 conn.once('open', function (error, results) {
                     if (error) {
                         console.log(error);
@@ -309,7 +313,7 @@
                             safe: true,
                             _id: userId
                         });
-                        var savedPicture = fs.createReadStream(files.file.path).pipe(writestream);
+                        var savedPicture = fs.createReadStream(files.avatar.path).pipe(writestream);
                         defer.resolve(savedPicture);
                     }
                 });

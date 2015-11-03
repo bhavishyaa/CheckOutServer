@@ -4,9 +4,9 @@
     
     S_pictureController.init = function (app) {
         
-        app.get("/api/getUserPic", function (req, res) {
-            var userId = "55ec4819411b7c0300034ddb";
+        app.get("/api/getUserPic/:id", function (req, res) {
             //var userId = req.headers.userid;
+            var userId = req.params.id;
 
             //ToDo: check for null
             //if (!userId) {
@@ -26,10 +26,9 @@
 
         });
         
-        app.post("/api/postUserPic", function (req, res) {
-            var userId = "55ec4819411b7c0300034ddb";
+        app.post("/api/postUserPic/:id", function (req, res) {
             //var userId = req.headers.userid;
-
+            var userId = req.params.id;
             //if (!userId) {
             //    return res.status(401).send({ message : "UserId is not passed in headers" });
             //}
