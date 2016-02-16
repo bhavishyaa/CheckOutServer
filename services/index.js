@@ -57,6 +57,19 @@
 
     };
     
+    services.socialRegister = function (user) {
+        
+        var defer = q.defer();
+        var promise = database.socialRegister(user);
+        promise.then(function (result) {
+            defer.resolve(result);
+        }, function (error) {
+            defer.reject(error);
+        });
+        return defer.promise;
+
+    };
+    
     
     
     //Get Users based on location
@@ -77,7 +90,7 @@
     services.getUser = function (userId) {
         
         var defer = q.defer();
-		var promise = database.getUserUsingUserId(userId);
+        var promise = database.getUserUsingUserId(userId);
         promise.then(function (result) {
             defer.resolve(result);
         }, function (error) {
@@ -114,9 +127,9 @@
         return defer.promise;
 
     };
-
+    
     //Get user current Profile
-
+    
     services.getUserProfile = function (userId) {
         
         var defer = q.defer();
@@ -156,10 +169,10 @@
         return defer.promise;
         
     };
-
+    
     //Post User pic
     services.postUserPic = function (userId, req) {
-    
+        
         var defer = q.defer();
         var promise = database.postUserPic(userId, req);
         promise.then(function (result) {

@@ -9,7 +9,7 @@
     //mongoose.connect('mongodb://localhost/nkdb');
     //mongoose.connect('mongodb://kabra:kabra@ds027761.mongolab.com:27761/checkout');
     var db = mongoose.connection;
-
+    
     var mongo = require('mongodb');
     var grid = require('gridfs-stream');
     //var gfs = grid(db, mongo);
@@ -34,6 +34,16 @@
         console.log("connected to DB");
     });
     
+    //Socail Accounts schema
+    var account = mongoose.Schema;
+    var socialAccounts = account({
+        loginType: String,
+        id: String,
+        name: String,
+        email: String,
+        imageUrl: String,
+    });
+    
     //var userSchema = require("./userSchema.js");
     var schema = mongoose.Schema;
     var userSchema = schema({
@@ -42,6 +52,7 @@
         username: String,
         passwordHash: String,
         salt: String,
+        accounts: [socialAccounts],
         //name: String,
         //status: { type: String, default: "Hey there! Am checking out" },
         location: {
@@ -88,6 +99,8 @@
     database.registerUser = function (user) {
         
         var defer = q.defer();
+        user.accounts = [{ email: user.email, loginType: user.type }];
+        user.name = user.name;
         var usertobeRegisterd = new userModel(user);
         usertobeRegisterd.location.coordinates[0] = 90;
         usertobeRegisterd.location.coordinates[1] = 90;
@@ -150,9 +163,29 @@
 
     };
     
+    database.socialRegister = function (user) {
+        var defer = q.defer();
+        userModel.findOne({ 'accounts.loginType' : user.loginType, 'accounts.email' : user.email }, function (err, results) {
+            if (err) {
+                defer.reject(err);
+            } else {
+                if (!results) {
+                    database.registerUser(user).then(function (user) {
+                        defer.resolve(user);
+                    }, function (error) {
+                        defer.reject(error);
+                    })
+                } else {
+                    defer.resolve(results);
+                }
+            }
+        });
+        return defer.promise;
+    };
+    
     //Save User
     database.saveUser = function (user) {
-        
+
         var userDetail = new userModel({
             userId: user.userId,
             name: user.name,
@@ -268,7 +301,7 @@
     database.getUserPic = function (config) {
         
         var defer = q.defer();
-
+        
         var conn = mongoose.createConnection(dbConnectionString);
         var output = null;
         conn.once('open', function (response) {
@@ -291,7 +324,7 @@
         return defer.promise;
 
     };
-
+    
     //Save User picture
     database.postUserPic = function (userId, req) {
         var defer = q.defer();
@@ -322,6 +355,6 @@
         });
         return defer.promise;
     };
-    
+
 
 })(module.exports);

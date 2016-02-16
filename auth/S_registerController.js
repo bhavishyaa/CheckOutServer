@@ -3,8 +3,18 @@
     var services = require("../services");
     var hasher = require('./hasher.js');
     var passport = require('passport');
+    var session = require('express-session');
     var localStrategy = require('passport-local').Strategy;
+
     var auth = require("./index.js");
+    
+    //var express = require('express');
+    //var router = express.Router();
+
+    //var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+    //var MyGoogleLoginMechanism = require('../config/strategies/google.strategy');
+    //MyGoogleLoginMechanism();
+
     //var jwt = require('jwt-simple');
     //var jwtBearerStrategy = require('passport-http-bearer');
     //var secretOrPublicKey = "Nishanth";
@@ -31,9 +41,11 @@
         }
         
         passport.use(new localStrategy(userVerify));
+        
         passport.serializeUser(function (user, next) {
-            next(null, user._id);
+            next(null, user);
         });
+        
         passport.deserializeUser(function (key, next) {
             services.getUserUsingUserId(key, function (err, user) {
                 if (err) {
@@ -43,9 +55,34 @@
                 }
             });
         });
+        
+        app.use(session({ secret: 'anything' }));
+        
         app.use(passport.initialize());
         app.use(passport.session());
         
+        //app.route('/google').get(passport.authenticate('google', {
+        //    scope: ['https://www.googleapis.com/auth/userinfo.profile',
+        //        'https://www.googleapis.com/auth/userinfo.email']
+        //}, function (req, res) { 
+        //    res.send("hi");
+        //})
+        //);
+        
+        //app.route('/google/callback').get(passport.authenticate('google', {
+        //    successRedirect: '/googleSuccess',
+        //    failure: '/error/'
+        //}));
+        
+        //app.route('/google/callback').get(passport.authenticate('google', function (req, res) { 
+        //    res.send({ id: "id" });
+        //}));
+
+        //app.get('/googleSuccess', function (req, res) {
+        //    var result = { googleSuccess : true };
+        //    res.send(result);
+        //});
+
         app.post("/api/login", function (req, res, next) {
             var authFunction = passport.authenticate("local", function (err, user, info) {
                 if (err) {
@@ -93,6 +130,24 @@
                 res.send(result);
             }, function (error) {
                 res.send("Registration failed" + error);
+            });
+        });
+
+        app.post("/api/social/register", function (req, res) { 
+            
+            var user = {
+                loginType: req.body.loginType.toLowerCase(),
+                id: req.body.id,
+                name: req.body.name,
+                email: req.body.email.toLowerCase(),
+                imageUrl: req.body.imageUrl
+            };
+
+            var promise = services.socialRegister(user);
+            promise.then(function (result) {
+                res.send(result);
+            }, function (error) {
+                res.send("Social registration of type " + user.type + "failed" + error);
             });
         });
     };
